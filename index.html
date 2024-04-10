@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Latent Couple Region Mapper</title>
+    <title>Latent Couple 可视化区域设置</title>
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/main.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/hella.css" />
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.min.js"></script>
+    <script src="scripts/vue.min.js"></script>
     <link rel="stylesheet" href="stylesheets/water.css">
 
   </head>
@@ -16,50 +16,48 @@
         <div class="grid">
             <div class="row">
                 <div class="column six">
-                    <header>Latent Couple Region Mapper - <a href="https://github.com/CodeZombie/latentcoupleregionmapper/">Github</a></header>
+                    <header>Latent Couple 可视化区域设置 - <a href="https://github.com/CodeZombie/latentcoupleregionmapper/">Github</a></header>
                     
-                    <span>By Jeremy "<code>{{this.nick}}</code>" Clark. 
+                    <span>By Jeremy "<code>{{this.nick}}</code>" Clark. 汉化 by 秋叶
                 </div>
                 <div class="column six">
                     <div class="panel">
-                        <strong>Instructions</strong> <span @click="toggle_instructions()">{{ this.instructions_visible ? "Hide" : "Show" }}</span>
+                        <strong>使用说明</strong> <span @click="toggle_instructions()">{{ this.instructions_visible ? "点击隐藏" : "点击隐藏" }}</span>
                         <div v-if="instructions_visible">
-                            This is a tool for mapping areas of your image for use with the Stable Diffusion <a href="https://github.com/miZyind/sd-webui-latent-couple">Latent Couple Composable Diffusion extension</a>.
-                            <h4>How to use it</h4>
                             <ul>
-                                <li>Open an image and/or set the size of the canvas</li>
-                                <li>Click and drag on the canvas to draw a Region.</li>
-                                <li>Use the red anchor at the bottom right of a Region to resize it, or click anywhere else on a Region to move it around.</li>
-                                <li>Right-click on Regions to delete them</li>
-                                <li>Regions can be snapped to a grid with the <code>Snap Regions to Grid</code> button.</li>
-                                <li>The grid can be configured or turned off with the <code>Grid</code> settings at the top.</li>
-                                <li>Each of the Regions you create will create a panel at the bottom where you can modify the Region's prompt and weight.</li>
-                                <li>Modifying this prompt or weight will automatically update the values in the <code>Output</code> panel</li>
-                                <li>When you're done configuring the Regions, copy the information in the Output panel using the <code>Copy</code> buttons and paste them into the corresponding sections in the Automatic1111 WebUI extension.</li>
+                                <li>打开图像 / 设置画布的大小</li>
+                                <li>在画布上单击并拖动以绘制区域</li>
+                                <li>使用区域右下角的红色锚点调整其大小，或单击区域上的其他任何位置将其移动</li>
+                                <li>右键单击区域以删除它们</li>
+                                <li>使用 <code>将区域与网格对齐</code> 按钮，可以将区域与网格对齐</li>
+                                <li>可以使用顶部的 <code>网格设置</code> 来配置或关闭网格</li>
+                                <li>您创建的每个区域都将在底部创建一个面板，您可以在其中修改区域的提示和权重</li>
+                                <li>修改此提示或权重将自动更新 <code>最终提示词</code> 面板中的值</li>
+                                <li>配置完区域后，使用 <code>复制</code> 按钮复制“输出”面板中的信息，并将其粘贴到Automatc1111 WebUI扩展中的相应部分</li>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="column six panel imagepanel">
-                    <label for="imageLoader">Image</label>
+                    <label for="imageLoader">上传图片</label>
                     <input type="file" name="imageLoader" @change="uploadImage"/>
                     <div class="settings_panel">
-                        <label for="canvas_width">Width</label>
+                        <label for="canvas_width">画布宽度</label>
                         <input type="number" name="canvas_width" min="64" max="8192" v-model.number="canvas_width">
-                        <label for="canvas_height">Height</label>
+                        <label for="canvas_height">画布高度</label>
                         <input type="number" name="canvas_height" min="64" max="8192" v-model.number="canvas_height">
                     </div>
 
                 </div>
                 <div class="column six panel">
-                    Grid Settings
+                    网格设置
                     <div class="settings_panel">
-                        <label for="cheese">Enabled</label>
+                        <label for="cheese">启用辅助网格</label>
                         <input type="checkbox" name="cheese" id="cheese" v-model="grid_enabled">
-                        <label for="grid_rows">Rows</label>
+                        <label for="grid_rows">行</label>
                         <input type="number" id="quantity" name="grid_rows" min="1" max="128" v-model.number="grid_rows">
-                        <label for="grid_rows">Columns</label>
+                        <label for="grid_rows">列</label>
                         <input type="number" id="quantity" name="grid_rows" min="1" max="128" v-model.number="grid_columns">
                     </div>
                 </div>
@@ -67,39 +65,39 @@
         </div>
         <div class="image_panel">
             <canvas ref="canvas" id="canvas" width="512" height="512" oncontextmenu="return false;" @mousemove="onCanvasMouseMove" @mouseup="onCanvasMouseUp" @mousedown="onCanvasMouseDown" @mouseleave="onCanvasMouseLeave"></canvas>
-            <button id="quantize_regions" @click="snapAllRegions()">Snap Regions to Grid</button>
+            <button id="quantize_regions" @click="snapAllRegions()">将区域与网格对齐</button>
         </div>
         <div class="grid">
             <div class="panel" v-for="(region, index) in [global_region].concat(regions)" v-bind:key="index">
                 <div class="region_header">
                     <div class="toggle_label">
                         <input type="checkbox" v-model="region.enabled">
-                        <strong>{{index || "Global"}}</strong>
+                        <strong>{{index || "全局提示词"}}</strong>
                     </div>
                     <div class="region_info">
 
                     </div>
-                    <button class="small" v-if="index" @click="deleteRegion(region)">Delete</button>
+                    <button class="small" v-if="index" @click="deleteRegion(region)">删除</button>
                 </div>
                 <hr/>
                 
                 <div class="promptweightbar">
                     <textarea rows=2, type="text" placeholder="prompt" class="region_prompt" name="region_prompt" v-model="region.prompt"></textarea>
                     <div>
-                    <label for="region_weight">Weight </label>
+                    <label for="region_weight">权重</label>
                     <input type="number" step="0.01" name="region_weight" class="region_weight" v-model.number="region.weight">
                     </div>
                 </div>
             </div>
             <div class="panel">
-                <div><strong>Output</strong></div>
+                <div><strong>输出</strong></div>
                 <div class="row">
                     <div class="column four output_text_row">
                         <div  v-for='keyval in [["Divisions", divisions()], ["Positions", positions()], ["Weights", weights()]]'>
                             <div class="title_copy_container">
                                 <div>{{keyval[0]}}:</div>
                                 <div class="button_container">
-                                    <button @click="copyText(keyval[1])" class="small">copy</button>
+                                    <button @click="copyText(keyval[1])" class="small">复制</button>
                                 </div>
                             </div>
                             <code>{{keyval[1]}}</code>
@@ -110,9 +108,9 @@
                     
                     <div class="column eight">
                         <div class="title_copy_container">
-                            <div>Combined Prompt:</div>
+                            <div>最终提示词:</div>
                             <div class="button_container">
-                                <button @click="copyText(prompt())" class="small">copy</button>
+                                <button @click="copyText(prompt())" class="small">复制</button>
                             </div>
                         </div>
                         <pre><code>{{prompt()}}</code></pre>
